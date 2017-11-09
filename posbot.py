@@ -23,7 +23,7 @@ NONE, LOGIN, PASSWORD, ORDER, ORDER_AMOUNT, CONFIRM_ORDER = range(6)
 INVALID_BOT = None
 
 # @viaposbot TOKEN
-token="486785031:AAFzkzoyeeWHfOVs7LFYf-gQaZUiKqMoX1w"
+token=""
 
 
 def start(bot, update):
