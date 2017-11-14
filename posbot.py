@@ -11,6 +11,12 @@
     Bestel via de bot @viaposbot
     Lijst met dranken / schnapps
     Bij bestelling kiezen: Directe VIA tab afschrijving
+
+    /bestel - Bestel een product.
+    /saldo - Check je saldo.
+    /login - Login bij je VIA tab.
+    /logout - Uitloggen
+    /start - Beginscherm
 '''
 
 import logging, requests, json, time, pickle
@@ -126,6 +132,9 @@ def get_users(user_name_query):
     return [[InlineKeyboardButton(f['name'], callback_data=f['id'])] for f in filtered]
 
 def get_products():
+
+    global via_pos_products
+
     headers = {
         'Referer': 'http://dev.automatis.nl/posbier/',
     }
@@ -135,11 +144,11 @@ def get_products():
     )
 
     r = requests.get('http://dev.automatis.nl/pos/api/', headers=headers, params=params)
-    global via_pos_products
+
     via_pos_products = r.json()
     keyboard = []
-    for j in via_pos_products:
-        text = via_pos_products[j]['name'] + " €" + via_pos_products[j]['price']
+    for product in sorted(via_pos_products.values(), key=lambda x:x['name']):
+        text = product['name'] + " €" + product['price']
         keyboard.append([InlineKeyboardButton(text)])
     return keyboard
 
@@ -310,7 +319,11 @@ def message_handler(bot, update, user_data):
             order_product(bot, update, user_data)
     elif(user_data['STATE'] == ORDER_AMOUNT):
         user_data['product_amount'] = to_number(update.message.text)
-        if(check_saldo(bot, update, user_data)):
+        if(user_data['product_amount'] <= 0):
+            update.message.reply_text("Dit is geen geldige waarde. Probeer het opnieuw.")
+            user_data['product_amount'] = None
+            order_amount(bot, update, user_data)
+        elif(check_saldo(bot, update, user_data)):
             confirm_order(bot, update, user_data)
         else:
             update.message.reply_text("Je hebt niet genoeg saldo op je rekening.")
