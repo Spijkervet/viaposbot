@@ -1,5 +1,5 @@
 # viaposbot
-POS Bot for VIA
+Point of Sale Telegram Bot for my student association, via.
 
 
 # Usage
